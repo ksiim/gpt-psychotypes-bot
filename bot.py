@@ -5,4 +5,4 @@ from config import BOT_TOKEN
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
 
-dp = Dispatcher() 
+dp = Dispatcher()

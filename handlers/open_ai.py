@@ -18,24 +18,23 @@ from .markups import *
 async def proccess_text_query(message: Message, state: FSMContext):
     user = await Orm.get_user_by_telegram_id(message.from_user.id)
     query = message.text
-    
+
     updating_message = await message.answer(
         text=waiting_text
     )
     await bot.send_chat_action(message.chat.id, action=ChatAction.TYPING)
 
     open_ai = OpenAI_API(user=user)
-    
+
     answer = await open_ai(query)
-    
+
     if answer:
         await updating_message.delete()
-        
+
         await message.answer(
             text=answer
         )
     else:
         await updating_message.edit_text(
             text="Превышен лимит запросов",
-            reply_markup=buy_premium_markup
         )
