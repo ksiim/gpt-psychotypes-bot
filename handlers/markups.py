@@ -13,12 +13,391 @@ from .callbacks import *
 waiting_text = "Ваш запрос принят, ожидайте ответа..."
 
 
+async def generate_free_limit_updated_text():
+    text = f"На ваш баланс зачислены бесплатные запросы, в размере {await Orm.get_const('free_text_limit')} шт."
+    return text
+
 message_prompt_taken_message_text = "✅ Запрос принят. Генерирую изображение, это может занять 1-2 минуты..."
+
+admin_panel_text = "Админ панель"
+texts_text = "Тексты\n\nВыберите текст для изменения"
+constants_text = "Константы\n\nВыберите константу для изменения"
+psychotypes_settings_text = "Настройки психотипов. Выберите психотип для дальнейших настроек"
+packages_settings_text = "Настройки пакетов. Выберите тип пакетов для настройки"
+
+picture_packages_settings_text = "Нажмите для изменения настроек пакетов с картинками"
+text_packages_settings_text = "Нажмите для изменения настроек пакетов с текстами"
+
+
+packages_settings_markup = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Текстовые",
+                callback_data="text_packages_settings"
+            ),
+            InlineKeyboardButton(
+                text="Картинки",
+                callback_data="picture_packages_settings"
+            )
+        ],
+    ]
+)
+
+confirmation_spam_markup = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Да",
+                callback_data="yes"
+            ),
+            InlineKeyboardButton(
+                text="Нет",
+                callback_data="no"
+            )
+        ]
+    ]
+)
+
+admin_markup = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Статистика",
+                callback_data="stat"
+            ),
+            InlineKeyboardButton(
+                text='Статистика психотипов',
+                callback_data='psychotypes_stat'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text='Статистика всех функций',
+                callback_data='func_stat'
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Рассылка",
+                callback_data="spam"
+            ),
+            InlineKeyboardButton(
+                text="Рассылка бонусов",
+                callback_data="bonus_spam"
+            )
+        ],
+        [
+            # InlineKeyboardButton(
+            #     text="Тексты",
+            #     callback_data="texts"
+            # ),
+            InlineKeyboardButton(
+                text="Константы",
+                callback_data="constants"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="Настройки психотипов",
+                callback_data="psychotypes_settings"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="Настройки пакетов",
+                callback_data="packages_settings"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="Добавить канал",
+                callback_data="add_channel"
+            ),
+            InlineKeyboardButton(
+                text="Удалить канал",
+                callback_data="delete_channel"
+            )
+        ]
+    ]
+)
+
+
+async def generate_delete_channels_markup():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=channel.name,
+                    callback_data=f"dceletenel:{channel.id}"
+                )
+            ] for channel in await Orm.get_channels('bonus')
+        ]
+    )
+
+bonus_spam_text = "Вы можете получить дополнительные генерации, подписавшись на каналы, указанные ниже\n\nПодписался, лови токены."
+
+
+async def generate_bonus_markup():
+    channels = await Orm.get_channels('bonus')
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=channel.name,
+                    url=channel.url
+                )
+            ] for channel in channels
+        ] + [[
+            InlineKeyboardButton(
+                text="Получить бонус",
+                callback_data="get_bonus"
+            )
+        ]]
+    )
+    
+async def send_bonus_message(telegram_id):
+    await bot.send_message(
+        chat_id=telegram_id,
+        text=bonus_spam_text,
+        reply_markup=await generate_bonus_markup()
+    )
+
+async def generate_func_statistic_text():
+    func_statistic = await Orm.get_func_statistic()
+    text = "Статистика функций\n\n"
+    for function_name, count in func_statistic:
+        text += f"{function_name}: {count}\n"
+    return text
+
+
+async def generate_psychotypes_settings_markup():
+    psychotypes = await Orm.get_all_psychotypes()
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=psychotype.name,
+                    callback_data=f"psychotype:{psychotype.id}"
+                )
+            ] for psychotype in psychotypes
+        ] + [
+            [InlineKeyboardButton(
+                text="Добавить психотип",
+                callback_data="add_psychotype"
+            )]
+        ]
+    )
+
+
+async def generate_text_packages_settings_markup():
+    text_packages = await Orm.get_all_text_packages()
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text=f"{text_package.count} шт. || {text_package.price}₽",
+                callback_data=f"sett_package:{text_package.id}"
+            )] for text_package in text_packages
+        ]
+    )
+    return keyboard
+
+
+async def generate_package_settings_text(package_id):
+    package = await Orm.get_package_by_id(int(package_id))
+    return f"""Настройки пакета {'с текстами' if package.type_ == 'text' else 'с картинками'}
+
+Количество: {package.count}
+Цена: {package.price}"""
+
+
+async def generate_buy_limits_markup():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Купить запросы",
+                    callback_data="buy_limits"
+                )
+            ]
+        ]
+    )
+
+
+async def generate_buy_limits_by_type_markup(type_):
+    packages = await Orm.get_all_packages_by_type(type_)
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"{package.count} шт. || {package.price}₽",
+                    callback_data=f"bbbuy:{package.id}"
+                )
+            ] for package in packages
+        ]
+    )
+    
+async def generate_package_buy_text(package_id):
+    package = await Orm.get_package_by_id(int(package_id))
+    return f'Вы хотите купить {package.count} запросов за {package.price}₽\n\nСовершите оплату по ссылке ниже, а затем нажмите на кнопку "Проверить"'
+
+
+async def generate_payment_markup(payment_link, payment_id):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Оплатить",
+                    url=payment_link,
+                ),
+                InlineKeyboardButton(
+                    text="Проверить",
+                    callback_data=f"cchecck:{payment_id}"
+                )
+            ]
+        ]
+    )
+
+async def generate_package_settings_markup(package_id):
+    package = await Orm.get_package_by_id(int(package_id))
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Изменить количество",
+                    callback_data=f"pac_cp:count:{package.id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Изменить стоимость",
+                    callback_data=f"pac_cp:price:{package.id}"
+                )
+            ]
+        ]
+    )
+
+
+async def generate_picture_packages_settings_markup():
+    picture_packages = await Orm.get_all_picture_packages()
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text=f"{picture_package.count} шт. || {picture_package.price}₽",
+                callback_data=f"sett_package:{picture_package.id}"
+            )] for picture_package in picture_packages
+        ]
+    )
+    return keyboard
+
+
+async def generate_current_psychotypes_text(user: User):
+    if user.psychotype is None:
+        return "У вас нет психотипа"
+    return f"""Ваш текущий психотип: {user.psychotype.name}
+Описание: {user.psychotype.description}
+
+Выберите психотип для смены"""
+
+
+async def generate_psychotype_settings_text(psychotype: Psychotype):
+    return f"""Настройки психотипа
+
+Психотип: {psychotype.name}
+"""
+
+
+async def generate_change_psychotype_markup(user: User):
+    psychotypes = await Orm.get_all_psychotypes()
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=psychotype.name,
+                    callback_data=f"change_psychotype:{psychotype.id}"
+                )
+            ] for psychotype in psychotypes
+        ]
+    )
 
 
 async def generate_profile_text(user: User):
     return f"""Это ваш профиль
 ID: {user.telegram_id}"""
+
+
+async def generate_edit_text_text(text: MessageText):
+    return f"""Редактирование текста
+
+Текст: {text.text}
+
+Для редактирования текста отправьте мне новый текст"""
+
+
+async def generate_edit_constant_text(constant: Const):
+    return f"""Редактирование константы
+
+Константа: {constant.name}
+Значение: {constant.value}
+
+Для редактирования значения отправьте мне новое значение"""
+
+
+async def generate_psychotype_settings_markup(psychotype: Psychotype):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Изменить название",
+                    callback_data=f"pt:change_name:{psychotype.id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Изменить описание",
+                    callback_data=f"pt:change_description:{psychotype.id}"
+                ),
+                InlineKeyboardButton(
+                    text="Изменить промпт",
+                    callback_data=f"pt:change_prompt:{psychotype.id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Удалить психотип",
+                    callback_data=f"pt:delete:{psychotype.id}"
+                )
+            ]
+        ]
+    )
+
+
+async def generate_constants_markup():
+    constants = await Orm.get_all_constants()
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=constant.name,
+                    callback_data=f"constant:{constant.id}"
+                )
+            ] for constant in constants
+        ]
+    )
+
+
+async def generate_texts_markup():
+    texts = await Orm.get_all_texts()
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=text.name_en,
+                    callback_data=f"text:{text.id}"
+                )
+            ] for text in texts
+        ]
+    )
 
 
 async def generate_payment_keyboard(payment_link: str, payment_id: str, type_='rate'):
@@ -56,6 +435,14 @@ ChatGPT-4o mini:
     """
 
 
+async def generate_psychotypes_statistic_text():
+    psychotypes_statistic = await Orm.get_psychotypes_statistic()
+    text = "Статистика психотипов\n\n"
+    for psychotype in psychotypes_statistic:
+        text += f"{psychotype.name.capitalize()}: {psychotype.count_of_usage} ({f'+{psychotype.statistics}' if psychotype.statistics >= 0 else psychotype.statistics})\n"
+    return text
+
+
 async def generate_statistic_text():
     yesterday, today, all_users_count, online_count = await asyncio.gather(
         Orm.get_yesterday_count(),
@@ -89,7 +476,7 @@ async def generate_start_text(message):
 Узнать все команды /help"""
 
 help_text = """
-Этот бот открывает вам доступ к продуктам OpenAI и другим нейросетям, таким как ChatGPT, Midjourney и Dall-E 3, для создания текста и изображений.
+Этот бот открывает вам доступ к продуктам OpenAI и другим нейросетям, таким как ChatGPT и Dall-E, для создания текста и изображений.
 
 Чатбот умеет:
 1. Писать и редактировать тексты
@@ -101,20 +488,17 @@ help_text = """
 
 ✍️ Для получения текстового ответа просто напишите Ваш вопрос в чат
 
-🌅 Для создания изображения Midjorney начните сообщение с /mj и добавьте описание
-
-Для создания изображения DALL-E 3 начните сообщение с /dalle
+🌅 Для создания изображения DALL-E начните сообщение с /dalle и напишите запрос (/dalle кот в сапогах)
 
 🔄 Чтобы очистить контекст диалога, воспользуйтесь командой /reset
 
 Команды
 /start - Что умеет чат-бот
 /profile - профиль пользователя
-/premium- получить подписку
+/packages - купить пакеты запросов
 /reset - сброс контекста
-/model - выбрать нейросеть
-/mj - изображение Midjorney
-/dalle - изображение Dall-e
+/psychotype - выбрать психотип
+/dalle - создать изображение
 /help - помощь
 """
 
@@ -140,3 +524,56 @@ async def generate_model_markup(user: User):
             ] for e in ChatModelEnum
         ]
     )
+    
+like_dislike_markup = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="👍",
+                callback_data="like"
+            ),
+            InlineKeyboardButton(
+                text="👎",
+                callback_data="dislike"
+            )
+        ]
+    ]
+)
+
+dislike_reply_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Добавь к ответу креатива")
+        ],
+        [
+            KeyboardButton(text="Добавь к ответу юмора")
+        ],
+        [
+            KeyboardButton(text="Добавь к ответу консерватизма")
+        ],
+        [
+            KeyboardButton(text="Добавь к ответу философии")
+        ],
+        [
+            KeyboardButton(text="Добавь к ответу легкомысленности")
+        ]
+    ],
+    one_time_keyboard=True,
+    resize_keyboard=True
+)
+
+
+choose_type_of_package_keyboard = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Текстовые",
+                callback_data="pacccckages:text"
+            ),
+            InlineKeyboardButton(
+                text="Изображения",
+                callback_data="pacccckages:picture"
+            )
+        ]
+    ]
+)

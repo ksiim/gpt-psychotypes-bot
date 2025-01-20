@@ -5,13 +5,13 @@ load_dotenv()  # Загрузка переменных из .env файла
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-DB_NAME = os.getenv('DB_NAME')
-DB_DIR = os.path.join(os.getcwd(), DB_NAME)
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+DB_DIR = os.path.join(os.getcwd(), POSTGRES_DB)
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_SERVER = os.getenv('POSTGRES_SERVER')
 DATABASE_URL = f"postgresql+asyncpg://{
-    DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
-SYNC_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
+SYNC_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
 YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')

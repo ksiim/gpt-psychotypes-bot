@@ -15,15 +15,11 @@ class YooPay:
     shop_id = YOOKASSA_SHOP_ID
     secret_key = YOOKASSA_SECRET_KEY
 
-    async def create_payment(self, type_='rate', amount=None, rate_name=None, period=None, telegram_id=None, count_of_generations=None, package_id=None):
-        match type_:
-            case 'rate':
-                purchase_description = f"Покупка тарифа {rate_name} на {period} {await incline_by_period(period)}"
-                metadata = await self.generate_metadata(rate_name=rate_name, period=period, telegram_id=telegram_id)
-            case 'midjourney':
-                purchase_description = f"Покупка генераций: {
-                    count_of_generations} шт."
-                metadata = await self.generate_metadata(package_id=package_id, telegram_id=telegram_id)
+    async def create_payment(self, package_id: int, telegram_id: int):
+        package = await Orm.get_package_by_id(int(package_id))
+        purchase_description = f"Покупка генераций {'текста' if package.type_ == 'text' else 'изображений'} в количестве {package.count} шт."
+        amount = package.price
+        metadata = await self.generate_metadata(package_id=package_id, telegram_id=telegram_id)
         response = Payment.create({
             "receipt": {
                 "customer": {
@@ -70,7 +66,7 @@ class YooPay:
         return Payment.find_one(payment_id)
 
     @staticmethod
-    async def payment_success(payment_id: str):
+    async def payment_success(payment_id: str) -> PaymentResponse:
         payment = await YooPay.find_payment(payment_id)
         if payment.status == "succeeded":
             return payment

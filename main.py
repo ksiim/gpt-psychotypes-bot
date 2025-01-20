@@ -20,6 +20,8 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     dp.message.middleware(handlers.middlewares.OnlineMiddleware())
+    dp.message.middleware(handlers.middlewares.FuncStatisticsMiddleware())
+    dp.callback_query.middleware(handlers.middlewares.FuncStatisticsMiddleware())
 
     initialize_scheduler()
 
@@ -32,6 +34,10 @@ async def main():
 
 def initialize_scheduler():
     scheduler = AsyncIOScheduler()
+    scheduler.add_job(utils.tasks.update_free_limits, 'cron', hour=0)
+    scheduler.add_job(utils.tasks.reminder, 'cron', hour=0)
+    # scheduler.add_job(utils.tasks.update_free_limits, 'interval', seconds=5)
+    # scheduler.add_job(utils.tasks.reminder, 'interval', seconds=5)
     scheduler.start()
 
 
