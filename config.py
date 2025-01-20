@@ -6,7 +6,6 @@ load_dotenv()  # Загрузка переменных из .env файла
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 POSTGRES_DB = os.getenv('POSTGRES_DB')
-DB_DIR = os.path.join(os.getcwd(), POSTGRES_DB)
 POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 POSTGRES_SERVER = os.getenv('POSTGRES_SERVER')
