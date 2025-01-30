@@ -12,15 +12,24 @@ from models.dbs.orm import Orm
 
 from utils.openai_api import OpenAI_API
 from .markups import *
+from .states import DalleState
 
 
 @dp.message(Command("dalle"))
 async def image_command(message: Message, state: FSMContext):
     await state.clear()
+    
+    await message.answer(
+        text=get_image_description_text,
+    )
+    
+    await state.set_state(DalleState.waiting_for_description)
 
+@dp.message(DalleState.waiting_for_description)
+async def proccess_image_query(message: Message, state: FSMContext):
     user = await Orm.get_user_by_telegram_id(message.from_user.id)
     try:
-        prompt = message.text.split(" ", 1)[1]
+        prompt = message.text
     except Exception:
         await message.answer(
             text="Напишите /dalle и описание изображения"
@@ -50,7 +59,6 @@ async def image_command(message: Message, state: FSMContext):
             reply_markup=await generate_buy_limits_markup()
         )
     await state.clear()
-
 
 
 @dp.message(F.text)

@@ -10,11 +10,11 @@ from models.dbs.models import *
 from .callbacks import *
 
 
-waiting_text = "Ваш запрос принят, ожидайте ответа..."
+waiting_text = "Принято, совсем скоро отвечу…"
 
 
 async def generate_free_limit_updated_text():
-    text = f"На ваш баланс зачислены бесплатные запросы, в размере {await Orm.get_const('free_text_limit')} шт."
+    text = f"На ваш баланс зачислены бесплатные сообщения, в размере {await Orm.get_const('free_text_limit')} шт."
     return text
 
 message_prompt_taken_message_text = "✅ Запрос принят. Генерирую изображение, это может занять 1-2 минуты..."
@@ -216,7 +216,7 @@ async def generate_buy_limits_markup():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Купить запросы",
+                    text="Купить сообщения",
                     callback_data="buy_limits"
                 )
             ]
@@ -239,7 +239,7 @@ async def generate_buy_limits_by_type_markup(type_):
     
 async def generate_package_buy_text(package_id):
     package = await Orm.get_package_by_id(int(package_id))
-    return f'Вы хотите купить {package.count} запросов за {package.price}₽\n\nСовершите оплату по ссылке ниже, а затем нажмите на кнопку "Проверить"'
+    return f'Вы хотите купить {package.count} сообщений за {package.price}₽\n\nСовершите оплату по ссылке ниже, а затем нажмите на кнопку "Проверить"'
 
 
 async def generate_payment_markup(payment_link, payment_id):
@@ -323,7 +323,29 @@ async def generate_change_psychotype_markup(user: User):
 
 async def generate_profile_text(user: User):
     return f"""Это ваш профиль
-ID: {user.telegram_id}"""
+Имя: {user.full_name}
+ID: {user.telegram_id}
+
+Количество текстовых сообщений: {user.free_text_limits_count + user.bought_text_limits_count}
+Количество изображений: {user.free_image_limits_count + user.bought_image_limits_count}
+"""
+
+confirm_reset_context_markup = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Да",
+                callback_data="resetcontext:yes"
+            ),
+            InlineKeyboardButton(
+                text="Нет",
+                callback_data="resetcontext:no"
+            )
+        ]
+    ]
+)
+
+fuf_im_here_text = 'Фуф, я всё ещё здесь 🙂 и к твоим услугам 😉'
 
 
 async def generate_edit_text_text(text: MessageText):
@@ -469,11 +491,15 @@ async def generate_statistic_text():
 
 
 async def generate_start_text(message):
-    return f"""Рад тебя приветствовать, {message.from_user.full_name}! Я Telegram бот ChatGPT + Dall-E
+    return f"""Приветствую тебя, {message.from_user.full_name}! 🎉
 
-Можешь задавать мне любые вопросы, просто напиши 😉
+Я - Telegram бот ChatGPT + DALL-E, и я здесь, чтобы помочь тебе! Я могу создавать уникальные изображения по твоим сообщениям, генерировать текст, соответствующий твоим предпочтениям, а также улучшать и придавать креативность твоему тексту, делая его более интересным.
 
-Узнать все команды /help"""
+Не стесняйся задавать мне любые вопросы, просто напиши, и я с радостью помогу! 😉  
+Чтобы узнать подробнее о моих возможностях, просто напиши /help"""
+
+get_image_description_text = "Опиши изображение которое нужно сгенерировать:"
+
 
 help_text = """
 Этот бот открывает вам доступ к продуктам OpenAI и другим нейросетям, таким как ChatGPT и Dall-E, для создания текста и изображений.
@@ -495,7 +521,7 @@ help_text = """
 Команды
 /start - Что умеет чат-бот
 /profile - профиль пользователя
-/packages - купить пакеты запросов
+/packages - купить пакеты
 /reset - сброс контекста
 /psychotype - выбрать психотип
 /dalle - создать изображение
@@ -510,7 +536,7 @@ close_markup = InlineKeyboardMarkup(
     ]
 )
 
-buy_premium_text = "Чтобы отправлять запросы к ChatGPT-4o нужно оформить подписку Plus или PRO по команде /premium"
+buy_premium_text = "Чтобы отправлять сообщения ChatGPT-4o нужно оформить подписку Plus или PRO по команде /premium"
 
 
 async def generate_model_markup(user: User):

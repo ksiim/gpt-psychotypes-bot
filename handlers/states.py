@@ -31,3 +31,7 @@ class AddChannelState(StatesGroup):
     link = State()
     message = State()
     name = State()
+
+
+class DalleState(StatesGroup):
+    waiting_for_description = State()

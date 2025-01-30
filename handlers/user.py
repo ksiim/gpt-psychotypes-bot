@@ -162,10 +162,27 @@ async def change_chat_model(callback: CallbackQuery):
 @dp.message(Command("reset"))
 async def reset_context_command(message: Message, state: FSMContext):
     await state.clear()
-
-    user = await Orm.get_user_by_telegram_id(message.from_user.id)
-    await Orm.clear_context_messages(user.id)
+    
     await message.answer(
+        text="Вы уверены, что хотите очистить контекст диалога?",
+        reply_markup=confirm_reset_context_markup
+    )
+    
+@dp.callback_query(lambda callback: callback.data.startswith("resetcontext"))
+async def reset_context_callback(callback: CallbackQuery):
+    action = callback.data.split(":")[-1]
+    if action == "yes":
+        await reset_user_context(callback)
+    else:
+        await callback.message.delete()
+        await callback.message.answer(
+            text=fuf_im_here_text
+        )
+
+async def reset_user_context(callback):
+    user = await Orm.get_user_by_telegram_id(callback.from_user.id)
+    await Orm.clear_context_messages(user.id)
+    await callback.message.answer(
         text="Контекст диалога очищен"
     )
 

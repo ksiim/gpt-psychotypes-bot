@@ -17,9 +17,9 @@ class User(Base):
     username: Mapped[str] = mapped_column(nullable=True)
     admin: Mapped[bool] = mapped_column(default=False)
     blocked: Mapped[bool] = mapped_column(default=False)
-    free_text_limits_count: Mapped[int] = mapped_column(default=0, nullable=True)
+    free_text_limits_count: Mapped[int] = mapped_column(default=10, nullable=True)
     bought_text_limits_count: Mapped[int] = mapped_column(default=0, nullable=True)
-    free_image_limits_count: Mapped[int] = mapped_column(default=0, nullable=True)
+    free_image_limits_count: Mapped[int] = mapped_column(default=5, nullable=True)
     bought_image_limits_count: Mapped[int] = mapped_column(default=0, nullable=True)
 
     chat_model: Mapped[ChatModelEnum] = mapped_column(
