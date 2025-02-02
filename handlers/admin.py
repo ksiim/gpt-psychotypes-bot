@@ -152,8 +152,7 @@ async def spam_callback_handler(callback: CallbackQuery, state: FSMContext):
 async def spam_text_handler(message: Message, state: FSMContext):
     spam_text = message.text
     await message.answer(
-        text=f"Людям придет сообщение:\n\n{
-            spam_text}\n\nВы уверены, что хотите отправить это сообщение?",
+        text=f"Людям придет сообщение:\n\n{spam_text}\n\nВы уверены, что хотите отправить это сообщение?",
         reply_markup=confirmation_spam_markup
     )
     await state.update_data(spam_text=spam_text)
