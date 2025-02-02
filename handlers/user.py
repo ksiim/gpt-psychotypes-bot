@@ -57,9 +57,14 @@ async def main_menu(callback: CallbackQuery, state: FSMContext):
 async def packages_command(message: Message, state: FSMContext):
     await state.clear()
     
+    keyboard = choose_type_of_package_keyboard
+    keyboard.inline_keyboard.append(
+        [InlineKeyboardButton(text="Назад", callback_data="back_to_menu")]
+    )
+    
     await message.answer(
         text="Выберите тип пакета запросов",
-        reply_markup=choose_type_of_package_keyboard
+        reply_markup=keyboard,
     )
     
 @dp.callback_query(F.data == "buy_limits")
