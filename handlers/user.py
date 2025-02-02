@@ -46,6 +46,12 @@ async def send_start_message(message: Message):
         text=await generate_start_text(message),
     )
     
+@dp.callback_query(F.data == 'back_to_menu')
+async def main_menu(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    
+    await send_start_message(callback)
+    
     
 @dp.message(Command("packages"))
 async def packages_command(message: Message, state: FSMContext):
@@ -86,9 +92,11 @@ async def like_callback(callback: CallbackQuery):
 @dp.callback_query(lambda callback: callback.data.startswith('pacccckages'))
 async def choose_package_handler(callback: CallbackQuery):
     package_type = callback.data.split(":")[-1]
+    keyboard = await generate_buy_limits_by_type_markup(package_type)
+    keyboard.inline_keyboard.append([InlineKeyboardButton(text="Назад", callback_data="back_to_menu")])
     await callback.message.edit_text(
         text=f"Выберите пакет запросов для {package_type}",
-        reply_markup=await generate_buy_limits_by_type_markup(package_type)
+        reply_markup=keyboard
     )
 
 

@@ -69,7 +69,8 @@ async def proccess_text_query(message: Message, state: FSMContext):
     query = message.text
 
     updating_message = await message.answer(
-        text=waiting_text
+        text=waiting_text,
+        reply_markup=back_to_menu_markup
     )
     await bot.send_chat_action(message.chat.id, action=ChatAction.TYPING)
 
