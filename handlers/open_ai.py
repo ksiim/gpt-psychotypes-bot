@@ -21,6 +21,7 @@ async def image_command(message: Message, state: FSMContext):
     
     await message.answer(
         text=get_image_description_text,
+        reply_markup=back_to_menu_markup
     )
     
     await state.set_state(DalleState.waiting_for_description)
@@ -70,7 +71,6 @@ async def proccess_text_query(message: Message, state: FSMContext):
 
     updating_message = await message.answer(
         text=waiting_text,
-        reply_markup=back_to_menu_markup
     )
     await bot.send_chat_action(message.chat.id, action=ChatAction.TYPING)
 

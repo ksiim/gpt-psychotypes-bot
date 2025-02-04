@@ -1,3 +1,4 @@
+from copy import deepcopy
 from aiogram import F
 from aiogram.filters.command import Command
 from aiogram.types import (
@@ -57,7 +58,7 @@ async def main_menu(callback: CallbackQuery, state: FSMContext):
 async def packages_command(message: Message, state: FSMContext):
     await state.clear()
     
-    keyboard = choose_type_of_package_keyboard
+    keyboard = deepcopy(choose_type_of_package_keyboard)
     keyboard.inline_keyboard.append(
         [InlineKeyboardButton(text="Назад", callback_data="back_to_menu")]
     )
