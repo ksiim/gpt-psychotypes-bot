@@ -322,12 +322,14 @@ async def generate_change_psychotype_markup(user: User):
 
 
 async def generate_profile_text(user: User):
+    free_text_limit_count = await Orm.get_const('free_text_limit')
+    free_image_limit_count = await Orm.get_const('free_image_limit')
     return f"""Это ваш профиль
 Имя: {user.full_name}
 ID: {user.telegram_id}
 
-Количество текстовых сообщений: {user.free_text_limits_count + user.bought_text_limits_count}
-Количество изображений: {user.free_image_limits_count + user.bought_image_limits_count}
+Количество текстовых сообщений: {user.bought_text_limits_count if user.bought_text_limits_count else free_text_limit_count}
+Количество изображений: {user.bought_image_limits_count if user.bought_image_limits_count else free_image_limit_count}
 """
 
 confirm_reset_context_markup = InlineKeyboardMarkup(
