@@ -49,6 +49,7 @@ async def send_start_message(message: Message):
     
 @dp.callback_query(F.data == 'back_to_menu')
 async def main_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.message.delete_reply_markup()
     await state.clear()
     
     await send_start_message(callback)
