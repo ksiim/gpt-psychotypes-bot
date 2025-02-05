@@ -41,7 +41,7 @@ class FuncStatisticsMiddleware(BaseMiddleware):
                     event_text = 'chatgpt'
             elif isinstance(event, CallbackQuery):
                 event_text = event.data
-                if event_text.split(':')[0] in ['cchecck', 'pacccckages', 'constant', 'constant', 'constants', 'change_psychotype']:
+                if event_text.split(':')[0] in ['cchecck', 'pacccckages', 'constant', 'constant', 'constants', 'change_psychotype', "bbbuy"]:
                     return await handler(event, data)
             await Orm.update_func_statistic(event_text, user.id)
         finally:
