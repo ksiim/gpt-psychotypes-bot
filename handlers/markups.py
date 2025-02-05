@@ -304,6 +304,7 @@ async def generate_psychotype_settings_text(psychotype: Psychotype):
     return f"""Настройки психотипа
 
 Психотип: {psychotype.name}
+Промпт: {psychotype.prompt}
 """
 
 
