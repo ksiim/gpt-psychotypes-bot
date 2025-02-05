@@ -21,7 +21,6 @@ async def image_command(message: Message, state: FSMContext):
     
     await message.answer(
         text=get_image_description_text,
-        reply_markup=back_to_menu_markup
     )
     
     await state.set_state(DalleState.waiting_for_description)
@@ -33,7 +32,7 @@ async def proccess_image_query(message: Message, state: FSMContext):
         prompt = message.text
     except Exception:
         await message.answer(
-            text="Напишите /dalle и описание изображения"
+            text=get_image_description_text
         )
         return
 

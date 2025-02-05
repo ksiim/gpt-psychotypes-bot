@@ -54,19 +54,25 @@ async def main_menu(callback: CallbackQuery, state: FSMContext):
     
     await send_start_message(callback)
     
+@dp.callback_query(F.data == 'back_to_packages')
+async def back_to_packages(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    
+    
+    await callback.message.answer(
+        text="Выберите тип пакета запросов",
+        reply_markup=choose_type_of_package_keyboard
+    )
+    
     
 @dp.message(Command("packages"))
 async def packages_command(message: Message, state: FSMContext):
     await state.clear()
     
-    keyboard = deepcopy(choose_type_of_package_keyboard)
-    keyboard.inline_keyboard.append(
-        [InlineKeyboardButton(text="Назад", callback_data="back_to_menu")]
-    )
     
     await message.answer(
         text="Выберите тип пакета запросов",
-        reply_markup=keyboard,
+        reply_markup=choose_type_of_package_keyboard
     )
     
 @dp.callback_query(F.data == "buy_limits")
@@ -100,7 +106,7 @@ async def like_callback(callback: CallbackQuery):
 async def choose_package_handler(callback: CallbackQuery):
     package_type = callback.data.split(":")[-1]
     keyboard = await generate_buy_limits_by_type_markup(package_type)
-    keyboard.inline_keyboard.append([InlineKeyboardButton(text="Назад", callback_data="back_to_menu")])
+    keyboard.inline_keyboard.append([InlineKeyboardButton(text="Назад", callback_data="back_to_packages")])
     await callback.message.edit_text(
         text=f"Выберите пакет запросов для {package_type}",
         reply_markup=keyboard
