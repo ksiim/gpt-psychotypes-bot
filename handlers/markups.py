@@ -328,8 +328,8 @@ async def generate_profile_text(user: User):
 Имя: {user.full_name}
 ID: {user.telegram_id}
 
-Количество текстовых сообщений: {user.bought_text_limits_count if user.bought_text_limits_count else free_text_limit_count}
-Количество изображений: {user.bought_image_limits_count if user.bought_image_limits_count else free_image_limit_count}
+Количество текстовых сообщений: {user.bought_text_limits_count if user.bought_text_limits_count else user.free_text_limits_count}
+Количество изображений: {user.bought_image_limits_count if user.bought_image_limits_count else user.free_image_limits_count}
 """
 
 confirm_reset_context_markup = InlineKeyboardMarkup(
