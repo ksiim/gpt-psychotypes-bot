@@ -42,7 +42,7 @@ class FuncStatisticsMiddleware(BaseMiddleware):
             elif isinstance(event, CallbackQuery):
                 event_text = event.data
                 if event_text.split(':')[0] in ['cchecck', 'pacccckages', 'constant', 'constant', 'constants', 'change_psychotype', "bbbuy"]:
-                    return await handler(event, data)
+                    raise Exception('No statistics for this command')
             await Orm.update_func_statistic(event_text, user.id)
         finally:
             return await handler(event, data)
