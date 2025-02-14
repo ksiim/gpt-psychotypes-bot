@@ -72,7 +72,7 @@ class Orm:
             query = (
                 update(User)
                 .where(User.bought_text_limits_count == 0)
-                .where(User.free_text_limits_count < free_text_limit)
+                .where(User.free_text_limits_count == 0)
                 .values(free_text_limits_count=free_text_limit)
             )
             await session.execute(query)
@@ -85,7 +85,7 @@ class Orm:
             query = (
                 update(User)
                 .where(User.bought_image_limits_count == 0)
-                .where(User.free_image_limits_count < free_image_limit)
+                .where(User.free_image_limits_count == 0)
                 .values(free_image_limits_count=free_image_limit)
             )
             await session.execute(query)
@@ -97,7 +97,7 @@ class Orm:
             query = (
                 select(User.telegram_id)
                 .where(User.bought_text_limits_count == 0)
-                .where(User.free_text_limits_count < int(await Orm.get_const('free_text_limit')))
+                .where(User.free_text_limits_count == 0)
             )
             return (await session.execute(query)).scalars().all()
     
