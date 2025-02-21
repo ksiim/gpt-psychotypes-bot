@@ -133,7 +133,7 @@ class Package(Base):
 class Channel(Base):
     __tablename__ = 'channels'
     
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger)
     name: Mapped[str] = mapped_column(nullable=True)
     url: Mapped[str] = mapped_column(nullable=True)
     type_: Mapped[str] = mapped_column(nullable=True) # enum: ['op',]
