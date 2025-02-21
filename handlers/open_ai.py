@@ -73,8 +73,14 @@ async def proccess_text_query(message: Message, state: FSMContext):
     )
     await bot.send_chat_action(message.chat.id, action=ChatAction.TYPING)
 
-    open_ai = OpenAI_API(user=user)
-
+    try:
+        open_ai = OpenAI_API(user=user)
+    except AttributeError:
+        await updating_message.edit_text(
+            text="Выберите, пожалуйста, психотип, с помощью команды /psychotype"
+        )
+        return
+    
     answer = await open_ai(query)
 
     if answer:
