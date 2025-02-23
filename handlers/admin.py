@@ -99,7 +99,7 @@ async def delete_channel(callback: CallbackQuery):
     
     await callback.message.answer(
         text="Выберите канал для удаления",
-        reply_markup=await generate_delete_channels_markup(channels)
+        reply_markup=await generate_delete_channels_markup()
     )
     
 
