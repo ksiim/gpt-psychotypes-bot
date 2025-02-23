@@ -82,10 +82,10 @@ admin_markup = InlineKeyboardMarkup(
                 text="Рассылка",
                 callback_data="spam"
             ),
-            # InlineKeyboardButton(
-            #     text="Рассылка бонусов",
-            #     callback_data="bonus_spam"
-            # )
+            InlineKeyboardButton(
+                text="Рассылка бонусов",
+                callback_data="bonus_spam"
+            )
         ],
         [
             # InlineKeyboardButton(
