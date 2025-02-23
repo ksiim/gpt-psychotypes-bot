@@ -478,8 +478,6 @@ async def bonus_spam_callback_handler(callback: CallbackQuery):
         await asyncio.gather(*chunk)
 
         await asyncio.sleep(1)
-    
-        await send_bonus_message(callback.from_user.id)
         
     await callback.message.answer("Рассылка завершена")
 
