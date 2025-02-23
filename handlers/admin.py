@@ -9,6 +9,7 @@ from bot import dp, bot
 
 from models.dbs.models import *
 from utils.tasks import spam_to_users_by_telegram_ids
+from more_itertools import chunked
 
 from .callbacks import *
 from .markups import *
@@ -465,6 +466,18 @@ async def change_package_price_handler(message: Message, state: FSMContext):
 @dp.callback_query(F.data == "bonus_spam")
 async def bonus_spam_callback_handler(callback: CallbackQuery):
     await callback.answer()
+    
+    telegram_ids = await Orm.get_users_telegram_ids()
+    
+    tasks = [send_bonus_message(telegram_id) for telegram_id in telegram_ids]
+
+    chunk_size = 35
+    chunks = chunked(tasks, chunk_size)
+
+    for chunk in chunks:
+        await asyncio.gather(*chunk)
+
+        await asyncio.sleep(1)
     
     await send_bonus_message(callback.from_user.id)
 
