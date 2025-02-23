@@ -344,7 +344,6 @@ class Orm:
         async with Session() as session:
             query = (
                 select(User.telegram_id)
-                .where(User.admin == False)
             )
             return (await session.execute(query)).scalars().all()
 
