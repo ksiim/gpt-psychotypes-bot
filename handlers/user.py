@@ -28,7 +28,7 @@ async def get_bonus_callback(callback: CallbackQuery):
     if all([await is_in_channel(channel.channel_id, user.telegram_id) for channel in await Orm.get_channels('bonus')]):
         await Orm.update_bought_text_limit(user.id, int(await Orm.get_const('bonus_reward')))
         await callback.message.delete()
-        await callback.answer("Лови бонус! 🎁")
+        await callback.message.answer("Лови бонус! 🎁")
     else:
         await callback.message.delete()
         await send_bonus_message(callback.from_user.id)
