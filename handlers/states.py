@@ -35,3 +35,7 @@ class AddChannelState(StatesGroup):
 
 class DalleState(StatesGroup):
     waiting_for_description = State()
+    
+class GiveLimitsState(StatesGroup):
+    waiting_for_count = State()
+    waiting_for_telegram_id = State()

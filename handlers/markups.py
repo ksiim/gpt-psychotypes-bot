@@ -118,6 +118,16 @@ admin_markup = InlineKeyboardMarkup(
                 text="Удалить канал",
                 callback_data="delete_channel"
             )
+        ],
+        [
+            InlineKeyboardButton(
+                text="Предоставить текстовые",
+                callback_data=f"give_limits:text"
+            ),
+            InlineKeyboardButton(
+                text="Предоставить изображения",
+                callback_data=f"give_limits:picture"
+            )
         ]
     ]
 )

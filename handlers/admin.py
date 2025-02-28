@@ -480,4 +480,54 @@ async def bonus_spam_callback_handler(callback: CallbackQuery):
         await asyncio.sleep(1)
         
     await callback.message.answer("Рассылка завершена")
+    
+@dp.callback_query(lambda callback: callback.data.startswith("give_limits:"))
+async def give_limits(callback: CallbackQuery, state: FSMContext):
+    action = callback.data.split(":")[-1]
+    
+    await state.update_data(
+        action=action
+    )
+    
+    await callback.message.answer(
+        text="Введите telegram_id пользователя"
+    )
+    
+    await state.set_state(GiveLimitsState.waiting_for_telegram_id)
+    
+    
+@dp.message(GiveLimitsState.waiting_for_telegram_id)
+async def get_telegram_id(message: Message, state: FSMContext):
+    telegram_id = int(message.text)
+    
+    await state.update_data(telegram_id=telegram_id)
+    
+    await message.answer(
+        text="Введите количество запросов"
+    )
+    
+    await state.set_state(GiveLimitsState.waiting_for_count)
+    
+@dp.message(GiveLimitsState.waiting_for_count)
+async def get_count(message: Message, state: FSMContext):
+    try:
+        count = int(message.text)
+    except ValueError:
+        return await message.answer("Ошибка. Введите целое число")
+    
+    data = await state.get_data()
+    telegram_id = data.get('telegram_id')
+    action = data.get('action')
+    
+    if action == "text":
+        await Orm.update_bought_text_limit(telegram_id, count)
+    elif action == "picture":
+        await Orm.update_bought_image_limit(telegram_id, count)
+        
+    await message.answer(
+        text="Лимиты успешно обновлены"
+    )
+    
+    await state.clear()
+    
 
