@@ -519,12 +519,12 @@ async def get_count(message: Message, state: FSMContext):
     telegram_id = data.get('telegram_id')
     action = data.get('action')
     
-    print(action)
+    user = await Orm.get_user_by_telegram_id(telegram_id)
     
     if action == "text":
-        await Orm.update_bought_text_limit(telegram_id, count)
+        await Orm.update_bought_text_limit(user.id, count)
     elif action == "picture":
-        await Orm.update_bought_image_limit(telegram_id, count)
+        await Orm.update_bought_image_limit(user.id, count)
         
     await message.answer(
         text="Лимиты успешно обновлены"
