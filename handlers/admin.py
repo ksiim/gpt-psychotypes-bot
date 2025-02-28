@@ -519,6 +519,8 @@ async def get_count(message: Message, state: FSMContext):
     telegram_id = data.get('telegram_id')
     action = data.get('action')
     
+    print(action)
+    
     if action == "text":
         await Orm.update_bought_text_limit(telegram_id, count)
     elif action == "picture":
