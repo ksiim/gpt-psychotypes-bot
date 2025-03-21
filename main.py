@@ -34,8 +34,8 @@ async def main():
 
 def initialize_scheduler():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(utils.tasks.update_free_limits, 'cron', hour=0)
-    scheduler.add_job(utils.tasks.reminder, 'cron', hour=0)
+    scheduler.add_job(utils.tasks.update_free_limits, 'cron', hour=8)
+    scheduler.add_job(utils.tasks.reminder, 'cron', hour=8)
     # scheduler.add_job(utils.tasks.update_free_limits, 'interval', seconds=5)
     # scheduler.add_job(utils.tasks.reminder, 'interval', seconds=5)
     scheduler.start()
